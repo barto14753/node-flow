@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Node Flow</title>
+		<link rel="stylesheet" href="styles.css" />
+		<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<h1>Node Flow</h1>
+			</header>
+			<div class="controls">
+				<div class="control-group">
+					<h3>Node Management</h3>
+					<button id="addNode" class="btn btn-primary">Add Node</button>
+				</div>
+
+				<div class="control-group">
+					<h3>Edge Settings</h3>
+					<label>
+						<input type="checkbox" id="directedEdges" /> Directed edges
+					</label>
+					<button id="connectAllNodes" class="btn btn-secondary">
+						Connect All Nodes
+					</button>
+					<button id="removeAllEdges" class="btn btn-danger">
+						Remove All Edges
+					</button>
+				</div>
+
+				<div class="control-group">
+					<h3>Algorithms</h3>
+					<button id="runBFS" class="btn btn-algorithm">BFS</button>
+					<button id="runDFS" class="btn btn-algorithm">DFS</button>
+					<button id="stopAlgorithm" class="btn btn-warning">Stop</button>
+					<select id="startNode">
+						<option value="">Select start node</option>
+					</select>
+				</div>
+
+				<div class="control-group">
+					<h3>Other</h3>
+					<button id="clearGraph" class="btn btn-danger">Clear Graph</button>
+					<button id="centerGraph" class="btn btn-secondary">Center</button>
+				</div>
+			</div>
+
+			<div class="graph-container">
+				<div id="network"></div>
+			</div>
+
+			<div class="info-panel">
+				<h3>Activity Log</h3>
+				<div id="logContainer">
+					<div class="log-entry">
+						<span class="log-time">[System Start]</span>
+						<span class="log-message">Application initialized</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal for node editing -->
+		<div id="nodeModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<h2>Edit Node</h2>
+				<form id="nodeForm">
+					<div class="form-group">
+						<label for="nodeName">Name:</label>
+						<input type="text" id="nodeName" required />
+					</div>
+					<div class="form-group">
+						<label for="nodeColor">Color:</label>
+						<input type="color" id="nodeColor" value="#3498db" />
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary">Save</button>
+						<button type="button" id="deleteNodeBtn" class="btn btn-danger">
+							Delete
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary"
+							onclick="closeModal('nodeModal')"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Modal for edge editing -->
+		<div id="edgeModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<h2>Edit Edge</h2>
+				<form id="edgeForm">
+					<div class="form-group">
+						<label for="edgeWeight">Weight:</label>
+						<input type="number" id="edgeWeight" step="0.1" />
+					</div>
+					<div class="form-group">
+						<label for="edgeLabel">Label:</label>
+						<input type="text" id="edgeLabel" />
+					</div>
+					<div class="form-group">
+						<label for="edgeColor">Color:</label>
+						<input type="color" id="edgeColor" value="#848484" />
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary">Save</button>
+						<button type="button" id="deleteEdgeBtn" class="btn btn-danger">
+							Delete
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary"
+							onclick="closeModal('edgeModal')"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<script src="script.js"></script>
+	</body>
+</html>
