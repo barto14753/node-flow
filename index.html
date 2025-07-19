@@ -4,87 +4,313 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Node Flow</title>
+		<script src="https://cdn.tailwindcss.com"></script>
 		<link rel="stylesheet" href="styles.css" />
 		<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 	</head>
-	<body>
-		<div class="container">
-			<header>
-				<h1>Node Flow</h1>
+	<body
+		class="bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 h-screen overflow-hidden"
+	>
+		<div class="h-screen p-2 grid grid-cols-12 grid-rows-16 gap-2">
+			<!-- Header - zmniejszony -->
+			<header
+				class="col-span-12 row-span-1 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg flex items-center justify-center"
+			>
+				<div class="text-center">
+					<h1
+						class="text-2xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+					>
+						Node Flow
+					</h1>
+				</div>
 			</header>
-			<div class="controls">
-				<div class="control-group">
-					<h3>Node Management</h3>
-					<button id="addNode" class="btn btn-primary">Add Node</button>
-				</div>
 
-				<div class="control-group">
-					<h3>Edge Settings</h3>
-					<label>
-						<input type="checkbox" id="directedEdges" /> Directed edges
-					</label>
-					<button id="connectAllNodes" class="btn btn-secondary">
-						Connect All Nodes
-					</button>
-					<button id="removeAllEdges" class="btn btn-danger">
-						Remove All Edges
-					</button>
-				</div>
+			<!-- Controls Panel -->
+			<div
+				class="col-span-3 row-span-15 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 overflow-y-auto"
+			>
+				<div class="space-y-4">
+					<!-- Node Management -->
+					<div class="border-b border-gray-200 pb-3">
+						<h3
+							class="text-sm font-semibold text-gray-800 mb-2 flex items-center"
+						>
+							<svg
+								class="w-5 h-5 mr-2 text-blue-500"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+							>
+								<circle cx="10" cy="10" r="8" />
+							</svg>
+							Node Management
+						</h3>
+						<button
+							id="addNode"
+							class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+						>
+							Add Node
+						</button>
+					</div>
 
-				<div class="control-group">
-					<h3>Algorithms</h3>
-					<button id="runBFS" class="btn btn-algorithm">BFS</button>
-					<button id="runDFS" class="btn btn-algorithm">DFS</button>
-					<button id="stopAlgorithm" class="btn btn-warning">Stop</button>
-					<select id="startNode">
-						<option value="">Select start node</option>
-					</select>
-				</div>
+					<!-- Edge Settings -->
+					<div class="border-b border-gray-200 pb-3">
+						<h3
+							class="text-sm font-semibold text-gray-800 mb-2 flex items-center"
+						>
+							<svg
+								class="w-5 h-5 mr-2 text-green-500"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+								/>
+							</svg>
+							Edge Settings
+						</h3>
+						<div class="space-y-2">
+							<label
+								class="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
+							>
+								<input
+									type="checkbox"
+									id="directedEdges"
+									class="w-4 h-4 text-blue-500 rounded focus:ring-blue-500 focus:ring-2"
+								/>
+								<span class="text-gray-700 font-medium text-sm"
+									>Directed edges</span
+								>
+							</label>
+							<button
+								id="connectAllNodes"
+								class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+							>
+								Connect All Nodes
+							</button>
+							<button
+								id="removeAllEdges"
+								class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+							>
+								Remove All Edges
+							</button>
+						</div>
+					</div>
 
-				<div class="control-group">
-					<h3>Other</h3>
-					<button id="clearGraph" class="btn btn-danger">Clear Graph</button>
-					<button id="centerGraph" class="btn btn-secondary">Center</button>
+					<!-- Algorithms -->
+					<div class="border-b border-gray-200 pb-3">
+						<h3
+							class="text-sm font-semibold text-gray-800 mb-2 flex items-center"
+						>
+							<svg
+								class="w-5 h-5 mr-2 text-purple-500"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+								/>
+							</svg>
+							Algorithms
+						</h3>
+						<div class="space-y-2">
+							<div class="grid grid-cols-2 gap-1">
+								<button
+									id="runBFS"
+									class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-xs"
+								>
+									BFS
+								</button>
+								<button
+									id="runDFS"
+									class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-xs"
+								>
+									DFS
+								</button>
+							</div>
+							<button
+								id="stopAlgorithm"
+								class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-1.5 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+							>
+								Stop Algorithm
+							</button>
+							<select
+								id="startNode"
+								class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm text-sm"
+							>
+								<option value="">Select start node</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Other Functions -->
+					<div>
+						<h3
+							class="text-sm font-semibold text-gray-800 mb-2 flex items-center"
+						>
+							<svg
+								class="w-5 h-5 mr-2 text-gray-500"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+								/>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+								/>
+							</svg>
+							Other Functions
+						</h3>
+						<div class="space-y-2">
+							<button
+								id="clearGraph"
+								class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+							>
+								Clear Graph
+							</button>
+							<button
+								id="centerGraph"
+								class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
+							>
+								Center View
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<div class="graph-container">
-				<div id="network"></div>
+			<!-- Graph Container -->
+			<div
+				class="col-span-6 row-span-15 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden"
+			>
+				<div
+					id="network"
+					class="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100"
+				></div>
 			</div>
 
-			<div class="info-panel">
-				<h3>Activity Log</h3>
-				<div id="logContainer">
-					<div class="log-entry">
-						<span class="log-time">[System Start]</span>
-						<span class="log-message">Application initialized</span>
+			<!-- Activity Log Panel -->
+			<div
+				class="col-span-3 row-span-15 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 flex flex-col"
+			>
+				<h3
+					class="text-sm font-semibold text-gray-800 mb-2 flex items-center flex-shrink-0"
+				>
+					<svg
+						class="w-5 h-5 mr-2 text-indigo-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+					Activity Log
+				</h3>
+				<div
+					id="logContainer"
+					class="flex-1 bg-gray-900 rounded-xl p-4 overflow-y-auto font-mono text-sm max-h-full"
+					style="min-height: 0"
+				>
+					<div
+						class="log-entry flex flex-wrap mb-2 pb-2 border-b border-gray-700"
+					>
+						<span class="log-time text-blue-400 font-bold mr-3 flex-shrink-0"
+							>[System Start]</span
+						>
+						<span class="log-message text-green-400"
+							>Application initialized</span
+						>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Modal for node editing -->
-		<div id="nodeModal" class="modal">
-			<div class="modal-content">
-				<span class="close">&times;</span>
-				<h2>Edit Node</h2>
-				<form id="nodeForm">
+		<div
+			id="nodeModal"
+			class="modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden"
+		>
+			<div
+				class="modal-content bg-white rounded-2xl shadow-2xl w-96 mx-auto mt-20 p-8 relative transform transition-all"
+			>
+				<span
+					class="close absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer transition-colors"
+					>&times;</span
+				>
+				<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+					<svg
+						class="w-6 h-6 mr-3 text-blue-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+					>
+						<circle cx="10" cy="10" r="8" />
+					</svg>
+					Edit Node
+				</h2>
+				<form id="nodeForm" class="space-y-6">
 					<div class="form-group">
-						<label for="nodeName">Name:</label>
-						<input type="text" id="nodeName" required />
+						<label
+							for="nodeName"
+							class="block text-sm font-medium text-gray-700 mb-2"
+							>Name:</label
+						>
+						<input
+							type="text"
+							id="nodeName"
+							required
+							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+						/>
 					</div>
 					<div class="form-group">
-						<label for="nodeColor">Color:</label>
-						<input type="color" id="nodeColor" value="#3498db" />
+						<label
+							for="nodeColor"
+							class="block text-sm font-medium text-gray-700 mb-2"
+							>Color:</label
+						>
+						<input
+							type="color"
+							id="nodeColor"
+							value="#3498db"
+							class="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+						/>
 					</div>
-					<div class="form-actions">
-						<button type="submit" class="btn btn-primary">Save</button>
-						<button type="button" id="deleteNodeBtn" class="btn btn-danger">
+					<div class="form-actions flex gap-3 pt-4">
+						<button
+							type="submit"
+							class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							id="deleteNodeBtn"
+							class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+						>
 							Delete
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary"
+							class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
 							onclick="closeModal('nodeModal')"
 						>
 							Cancel
@@ -95,31 +321,89 @@
 		</div>
 
 		<!-- Modal for edge editing -->
-		<div id="edgeModal" class="modal">
-			<div class="modal-content">
-				<span class="close">&times;</span>
-				<h2>Edit Edge</h2>
-				<form id="edgeForm">
+		<div
+			id="edgeModal"
+			class="modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden"
+		>
+			<div
+				class="modal-content bg-white rounded-2xl shadow-2xl w-96 mx-auto mt-20 p-8 relative transform transition-all"
+			>
+				<span
+					class="close absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer transition-colors"
+					>&times;</span
+				>
+				<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+					<svg
+						class="w-6 h-6 mr-3 text-green-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+						/>
+					</svg>
+					Edit Edge
+				</h2>
+				<form id="edgeForm" class="space-y-6">
 					<div class="form-group">
-						<label for="edgeWeight">Weight:</label>
-						<input type="number" id="edgeWeight" step="0.1" />
+						<label
+							for="edgeWeight"
+							class="block text-sm font-medium text-gray-700 mb-2"
+							>Weight:</label
+						>
+						<input
+							type="number"
+							id="edgeWeight"
+							step="0.1"
+							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+						/>
 					</div>
 					<div class="form-group">
-						<label for="edgeLabel">Label:</label>
-						<input type="text" id="edgeLabel" />
+						<label
+							for="edgeLabel"
+							class="block text-sm font-medium text-gray-700 mb-2"
+							>Label:</label
+						>
+						<input
+							type="text"
+							id="edgeLabel"
+							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+						/>
 					</div>
 					<div class="form-group">
-						<label for="edgeColor">Color:</label>
-						<input type="color" id="edgeColor" value="#848484" />
+						<label
+							for="edgeColor"
+							class="block text-sm font-medium text-gray-700 mb-2"
+							>Color:</label
+						>
+						<input
+							type="color"
+							id="edgeColor"
+							value="#848484"
+							class="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+						/>
 					</div>
-					<div class="form-actions">
-						<button type="submit" class="btn btn-primary">Save</button>
-						<button type="button" id="deleteEdgeBtn" class="btn btn-danger">
+					<div class="form-actions flex gap-3 pt-4">
+						<button
+							type="submit"
+							class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							id="deleteEdgeBtn"
+							class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+						>
 							Delete
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary"
+							class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
 							onclick="closeModal('edgeModal')"
 						>
 							Cancel

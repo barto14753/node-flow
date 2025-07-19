@@ -17,7 +17,23 @@ let selectedNodeForEdge = null;
 const options = {
 	physics: {
 		enabled: true,
-		stabilization: { iterations: 100 },
+		stabilization: {
+			iterations: 100,
+			fit: false,
+			onlyDynamicEdges: false,
+			updateInterval: 100,
+		},
+		solver: "barnesHut",
+		barnesHut: {
+			gravitationalConstant: -8000,
+			centralGravity: 0.3,
+			springLength: 95,
+			springConstant: 0.04,
+			damping: 0.09,
+			avoidOverlap: 0,
+		},
+		adaptiveTimestep: true,
+		timestep: 0.5,
 	},
 	interaction: {
 		dragNodes: true,
@@ -579,32 +595,74 @@ function addLogEntry(message, type = "info") {
 		second: "2-digit",
 	});
 
+	// Check if we should auto-scroll (only if user is at the bottom)
+	const shouldAutoScroll =
+		logContainer.scrollTop + logContainer.clientHeight >=
+		logContainer.scrollHeight - 5;
+
 	const logEntry = document.createElement("div");
-	logEntry.className = `log-entry ${type}`;
+	logEntry.className =
+		"log-entry flex flex-wrap mb-2 pb-2 border-b border-gray-700";
+
+	// Determine color based on type
+	let timeColor = "text-blue-400";
+	let messageColor = "text-gray-100";
+
+	switch (type) {
+		case "success":
+			messageColor = "text-green-400";
+			break;
+		case "warning":
+			messageColor = "text-yellow-400";
+			break;
+		case "error":
+			messageColor = "text-red-400";
+			break;
+		case "algorithm":
+			messageColor = "text-cyan-400";
+			break;
+		default:
+			messageColor = "text-gray-100";
+	}
 
 	logEntry.innerHTML = `
-		<span class="log-time">[${timeString}]</span>
-		<span class="log-message">${message}</span>
+		<span class="log-time ${timeColor} font-bold mr-3 flex-shrink-0">[${timeString}]</span>
+		<span class="log-message ${messageColor}">${message}</span>
 	`;
+
+	// Limit log entries to prevent memory issues and maintain performance (keep last 30)
+	const entries = logContainer.querySelectorAll(".log-entry");
+	if (entries.length >= 30) {
+		// Remove oldest entries in batches to maintain stable height
+		const toRemove = entries.length - 29;
+		for (let i = 0; i < toRemove; i++) {
+			entries[i].remove();
+		}
+	}
 
 	logContainer.appendChild(logEntry);
 
-	// Auto-scroll to bottom
-	logContainer.scrollTop = logContainer.scrollHeight;
-
-	// Limit log entries to prevent memory issues (keep last 100)
-	const entries = logContainer.querySelectorAll(".log-entry");
-	if (entries.length > 100) {
-		entries[0].remove();
+	// Only auto-scroll if user was at bottom, and do it smoothly
+	if (shouldAutoScroll) {
+		requestAnimationFrame(() => {
+			logContainer.scrollTo({
+				top: logContainer.scrollHeight,
+				behavior: "smooth",
+			});
+		});
 	}
 }
 
 function openModal(modalId) {
-	document.getElementById(modalId).style.display = "block";
+	const modal = document.getElementById(modalId);
+	modal.classList.remove("hidden");
+	modal.classList.add("flex", "items-center", "justify-center");
 }
 
 function closeModal(modalId) {
-	document.getElementById(modalId).style.display = "none";
+	const modal = document.getElementById(modalId);
+	modal.classList.add("hidden");
+	modal.classList.remove("flex", "items-center", "justify-center");
 	currentEditingNode = null;
 	currentEditingEdge = null;
 }
@@ -737,6 +795,27 @@ function createEdge(fromNode, toNode) {
 		arrows: directed ? { to: { enabled: true } } : { to: { enabled: false } },
 	};
 
+	// Temporarily disable physics stabilization to prevent auto-zoom
+	network.setOptions({
+		physics: {
+			stabilization: { enabled: false },
+		},
+	});
+
 	edges.add(newEdge);
+
+	// Re-enable physics stabilization after a short delay
+	setTimeout(() => {
+		network.setOptions({
+			physics: {
+				stabilization: {
+					enabled: true,
+					iterations: 100,
+					fit: false,
+				},
+			},
+		});
+	}, 100);
+
 	updateInfo(`Created edge between nodes ${fromNode} and ${toNode}`);
 }
