@@ -21,6 +21,29 @@ select option {
 	color: white;
 }
 
+/* File input styling for dark theme */
+input[type="file"] {
+	background-color: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+	background: rgba(255, 255, 255, 0.2);
+	border: none;
+	color: white;
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+
 /* Animation for algorithm visualization */
 .algorithm-highlight {
 	animation: pulse 1s infinite;
@@ -136,4 +159,26 @@ select option {
 /* Modal backdrop blur effect */
 .modal {
 	backdrop-filter: blur(8px);
+}
+
+/* Collapsible sections animation */
+.collapsible-content {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.3s ease-out;
+}
+
+.collapsible-content.expanded {
+	max-height: 500px; /* Adjust based on content */
+}
+
+/* Chevron rotation animation */
+.chevron-rotate {
+	transition: transform 0.3s ease;
+}
+
+/* Smooth hover effects for section headers */
+.section-header:hover {
+	background-color: rgba(255, 255, 255, 0.05);
+	border-radius: 8px;
 }

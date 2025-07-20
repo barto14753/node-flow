@@ -94,23 +94,46 @@
 
 					<!-- Algorithms -->
 					<div class="border-b border-white/20 pb-4">
-						<h3 class="text-sm font-semibold text-white mb-3 flex items-center">
-							<svg
-								class="w-5 h-5 mr-2 text-purple-400"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
+						<button
+							class="w-full text-left section-header p-2 -m-2"
+							onclick="toggleSection('algorithmsSection')"
+						>
+							<h3
+								class="text-sm font-semibold text-white mb-3 flex items-center justify-between cursor-pointer hover:text-purple-300 transition-colors"
 							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-								/>
-							</svg>
-							Algorithms
-						</h3>
-						<div class="space-y-3">
+								<span class="flex items-center">
+									<svg
+										class="w-5 h-5 mr-2 text-purple-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+										/>
+									</svg>
+									Algorithms
+								</span>
+								<svg
+									id="algorithmsChevron"
+									class="w-4 h-4 chevron-rotate"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M19 9l-7 7-7-7"
+									/>
+								</svg>
+							</h3>
+						</button>
+						<div id="algorithmsSection" class="collapsible-content space-y-3">
 							<div class="grid grid-cols-2 gap-2">
 								<button
 									id="runBFS"
@@ -139,6 +162,98 @@
 									Select start node
 								</option>
 							</select>
+						</div>
+					</div>
+
+					<!-- Import/Export -->
+					<div class="border-b border-white/20 pb-4">
+						<button
+							class="w-full text-left section-header p-2 -m-2"
+							onclick="toggleSection('importExportSection')"
+						>
+							<h3
+								class="text-sm font-semibold text-white mb-3 flex items-center justify-between cursor-pointer hover:text-yellow-300 transition-colors"
+							>
+								<span class="flex items-center">
+									<svg
+										class="w-5 h-5 mr-2 text-yellow-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+										/>
+									</svg>
+									Import/Export
+								</span>
+								<svg
+									id="importExportChevron"
+									class="w-4 h-4 chevron-rotate"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M19 9l-7 7-7-7"
+									/>
+								</svg>
+							</h3>
+						</button>
+						<div id="importExportSection" class="collapsible-content space-y-3">
+							<!-- Import Section -->
+							<div class="space-y-2">
+								<label class="block text-white/80 text-xs font-medium"
+									>Import Graph:</label
+								>
+								<input
+									type="file"
+									id="importFile"
+									accept=".json,.xml"
+									class="w-full text-xs text-white/70 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-white/20 file:text-white hover:file:bg-white/30 file:cursor-pointer cursor-pointer bg-white/10 rounded-lg border border-white/20"
+								/>
+								<div class="grid grid-cols-2 gap-2">
+									<button
+										id="importJSON"
+										class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs"
+									>
+										Import JSON
+									</button>
+									<button
+										id="importXML"
+										class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs"
+									>
+										Import XML
+									</button>
+								</div>
+							</div>
+
+							<!-- Export Section -->
+							<div class="space-y-2">
+								<label class="block text-white/80 text-xs font-medium"
+									>Export Graph:</label
+								>
+								<div class="grid grid-cols-2 gap-2">
+									<button
+										id="exportJSON"
+										class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs"
+									>
+										Export JSON
+									</button>
+									<button
+										id="exportXML"
+										class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs"
+									>
+										Export XML
+									</button>
+								</div>
+							</div>
 						</div>
 					</div>
 

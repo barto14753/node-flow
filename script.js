@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	initializeNetwork();
 	setupEventListeners();
 	updateStartNodeSelect();
+	initializeCollapsibleSections();
 });
 
 // Initialize network
@@ -104,6 +105,12 @@ function setupEventListeners() {
 	// Other functions
 	document.getElementById("clearGraph").addEventListener("click", clearGraph);
 	document.getElementById("centerGraph").addEventListener("click", centerGraph);
+
+	// Import/Export functions
+	document.getElementById("importJSON").addEventListener("click", importJSON);
+	document.getElementById("importXML").addEventListener("click", importXML);
+	document.getElementById("exportJSON").addEventListener("click", exportJSON);
+	document.getElementById("exportXML").addEventListener("click", exportXML);
 
 	// Checkbox for directed edges
 	document
@@ -818,4 +825,311 @@ function createEdge(fromNode, toNode) {
 	}, 100);
 
 	updateInfo(`Created edge between nodes ${fromNode} and ${toNode}`);
+}
+
+// ==================== IMPORT/EXPORT FUNCTIONS ====================
+
+// Export graph to JSON format
+function exportJSON() {
+	try {
+		const graphData = {
+			nodes: nodes.get(),
+			edges: edges.get(),
+			metadata: {
+				nodeCounter: nodeCounter,
+				edgeCounter: edgeCounter,
+				exportDate: new Date().toISOString(),
+				version: "1.0",
+			},
+		};
+
+		const jsonString = JSON.stringify(graphData, null, 2);
+		downloadFile(jsonString, "graph.json", "application/json");
+		updateInfo("Graph exported to JSON successfully");
+	} catch (error) {
+		updateInfo("Error exporting to JSON: " + error.message);
+	}
+}
+
+// Export graph to XML format
+function exportXML() {
+	try {
+		const nodesData = nodes.get();
+		const edgesData = edges.get();
+
+		let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+		xml += "<graph>\n";
+		xml += "  <metadata>\n";
+		xml += `    <nodeCounter>${nodeCounter}</nodeCounter>\n`;
+		xml += `    <edgeCounter>${edgeCounter}</edgeCounter>\n`;
+		xml += `    <exportDate>${new Date().toISOString()}</exportDate>\n`;
+		xml += `    <version>1.0</version>\n`;
+		xml += "  </metadata>\n";
+
+		// Export nodes
+		xml += "  <nodes>\n";
+		nodesData.forEach((node) => {
+			xml += `    <node id="${node.id}" label="${escapeXml(
+				node.label
+			)}" color="${node.color || node.originalColor || "#3498db"}"`;
+			if (node.x !== undefined) xml += ` x="${node.x}"`;
+			if (node.y !== undefined) xml += ` y="${node.y}"`;
+			xml += "/>\n";
+		});
+		xml += "  </nodes>\n";
+
+		// Export edges
+		xml += "  <edges>\n";
+		edgesData.forEach((edge) => {
+			xml += `    <edge id="${edge.id}" from="${edge.from}" to="${edge.to}"`;
+			if (edge.label) xml += ` label="${escapeXml(edge.label)}"`;
+			if (edge.weight) xml += ` weight="${edge.weight}"`;
+			if (edge.color) xml += ` color="${edge.color}"`;
+			if (edge.arrows && edge.arrows.to && edge.arrows.to.enabled)
+				xml += ` directed="true"`;
+			xml += "/>\n";
+		});
+		xml += "  </edges>\n";
+		xml += "</graph>";
+
+		downloadFile(xml, "graph.xml", "application/xml");
+		updateInfo("Graph exported to XML successfully");
+	} catch (error) {
+		updateInfo("Error exporting to XML: " + error.message);
+	}
+}
+
+// Import graph from JSON format
+function importJSON() {
+	const fileInput = document.getElementById("importFile");
+	const file = fileInput.files[0];
+
+	if (!file) {
+		updateInfo("Please select a file first");
+		return;
+	}
+
+	if (!file.name.toLowerCase().endsWith(".json")) {
+		updateInfo("Please select a JSON file");
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = function (e) {
+		try {
+			const graphData = JSON.parse(e.target.result);
+
+			// Validate JSON structure
+			if (!graphData.nodes || !graphData.edges) {
+				throw new Error("Invalid JSON structure. Missing nodes or edges.");
+			}
+
+			// Clear current graph
+			nodes.clear();
+			edges.clear();
+
+			// Import nodes
+			const importedNodes = graphData.nodes.map((node) => ({
+				...node,
+				originalColor: node.color || node.originalColor || "#3498db",
+			}));
+			nodes.add(importedNodes);
+
+			// Import edges
+			edges.add(graphData.edges);
+
+			// Update counters
+			if (graphData.metadata) {
+				nodeCounter =
+					graphData.metadata.nodeCounter ||
+					Math.max(...graphData.nodes.map((n) => n.id), 0);
+				edgeCounter =
+					graphData.metadata.edgeCounter ||
+					Math.max(...graphData.edges.map((e) => e.id), 0);
+			} else {
+				nodeCounter = Math.max(...graphData.nodes.map((n) => n.id), 0);
+				edgeCounter = Math.max(...graphData.edges.map((e) => e.id), 0);
+			}
+
+			updateStartNodeSelect();
+			updateInfo(
+				`JSON imported successfully: ${graphData.nodes.length} nodes, ${graphData.edges.length} edges`
+			);
+
+			// Clear file input
+			fileInput.value = "";
+		} catch (error) {
+			updateInfo("Error importing JSON: " + error.message);
+		}
+	};
+	reader.readAsText(file);
+}
+
+// Import graph from XML format
+function importXML() {
+	const fileInput = document.getElementById("importFile");
+	const file = fileInput.files[0];
+
+	if (!file) {
+		updateInfo("Please select a file first");
+		return;
+	}
+
+	if (!file.name.toLowerCase().endsWith(".xml")) {
+		updateInfo("Please select an XML file");
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = function (e) {
+		try {
+			const parser = new DOMParser();
+			const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+
+			// Check for parsing errors
+			if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+				throw new Error("Invalid XML format");
+			}
+
+			// Clear current graph
+			nodes.clear();
+			edges.clear();
+
+			// Import nodes
+			const nodeElements = xmlDoc.getElementsByTagName("node");
+			const importedNodes = [];
+			for (let i = 0; i < nodeElements.length; i++) {
+				const nodeEl = nodeElements[i];
+				const node = {
+					id: parseInt(nodeEl.getAttribute("id")),
+					label: nodeEl.getAttribute("label"),
+					color: nodeEl.getAttribute("color") || "#3498db",
+					originalColor: nodeEl.getAttribute("color") || "#3498db",
+				};
+
+				if (nodeEl.getAttribute("x"))
+					node.x = parseFloat(nodeEl.getAttribute("x"));
+				if (nodeEl.getAttribute("y"))
+					node.y = parseFloat(nodeEl.getAttribute("y"));
+
+				importedNodes.push(node);
+			}
+			nodes.add(importedNodes);
+
+			// Import edges
+			const edgeElements = xmlDoc.getElementsByTagName("edge");
+			const importedEdges = [];
+			for (let i = 0; i < edgeElements.length; i++) {
+				const edgeEl = edgeElements[i];
+				const edge = {
+					id: parseInt(edgeEl.getAttribute("id")),
+					from: parseInt(edgeEl.getAttribute("from")),
+					to: parseInt(edgeEl.getAttribute("to")),
+				};
+
+				if (edgeEl.getAttribute("label"))
+					edge.label = edgeEl.getAttribute("label");
+				if (edgeEl.getAttribute("weight"))
+					edge.weight = parseFloat(edgeEl.getAttribute("weight"));
+				if (edgeEl.getAttribute("color"))
+					edge.color = edgeEl.getAttribute("color");
+
+				const directed = edgeEl.getAttribute("directed") === "true";
+				edge.arrows = directed
+					? { to: { enabled: true } }
+					: { to: { enabled: false } };
+
+				importedEdges.push(edge);
+			}
+			edges.add(importedEdges);
+
+			// Update counters from metadata or calculate
+			const metadataEl = xmlDoc.getElementsByTagName("metadata")[0];
+			if (metadataEl) {
+				const nodeCounterEl = metadataEl.getElementsByTagName("nodeCounter")[0];
+				const edgeCounterEl = metadataEl.getElementsByTagName("edgeCounter")[0];
+
+				nodeCounter = nodeCounterEl
+					? parseInt(nodeCounterEl.textContent)
+					: Math.max(...importedNodes.map((n) => n.id), 0);
+				edgeCounter = edgeCounterEl
+					? parseInt(edgeCounterEl.textContent)
+					: Math.max(...importedEdges.map((e) => e.id), 0);
+			} else {
+				nodeCounter = Math.max(...importedNodes.map((n) => n.id), 0);
+				edgeCounter = Math.max(...importedEdges.map((e) => e.id), 0);
+			}
+
+			updateStartNodeSelect();
+			updateInfo(
+				`XML imported successfully: ${importedNodes.length} nodes, ${importedEdges.length} edges`
+			);
+
+			// Clear file input
+			fileInput.value = "";
+		} catch (error) {
+			updateInfo("Error importing XML: " + error.message);
+		}
+	};
+	reader.readAsText(file);
+}
+
+// Helper function to download files
+function downloadFile(content, filename, contentType) {
+	const blob = new Blob([content], { type: contentType });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = filename;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
+}
+
+// Helper function to escape XML special characters
+function escapeXml(text) {
+	if (!text) return "";
+	return text
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&apos;");
+}
+
+// ==================== COLLAPSIBLE SECTIONS ====================
+
+// Initialize collapsible sections (collapsed by default)
+function initializeCollapsibleSections() {
+	// Collapse Algorithms section
+	const algorithmsSection = document.getElementById("algorithmsSection");
+	const algorithmsChevron = document.getElementById("algorithmsChevron");
+	algorithmsSection.style.maxHeight = "0px";
+	algorithmsChevron.style.transform = "rotate(0deg)";
+
+	// Collapse Import/Export section
+	const importExportSection = document.getElementById("importExportSection");
+	const importExportChevron = document.getElementById("importExportChevron");
+	importExportSection.style.maxHeight = "0px";
+	importExportChevron.style.transform = "rotate(0deg)";
+}
+
+// Toggle section visibility
+function toggleSection(sectionId) {
+	const section = document.getElementById(sectionId);
+	const chevronId = sectionId.replace("Section", "Chevron");
+	const chevron = document.getElementById(chevronId);
+
+	if (section.style.maxHeight === "0px" || section.style.maxHeight === "") {
+		// Show section
+		section.style.maxHeight = section.scrollHeight + "px";
+		chevron.style.transform = "rotate(180deg)";
+		section.classList.add("expanded");
+	} else {
+		// Hide section
+		section.style.maxHeight = "0px";
+		chevron.style.transform = "rotate(0deg)";
+		section.classList.remove("expanded");
+	}
 }
