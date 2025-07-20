@@ -144,6 +144,11 @@ function setupEventListeners() {
 		.getElementById("deleteEdgeBtn")
 		.addEventListener("click", deleteCurrentEdge);
 
+	// Algorithm speed slider
+	document
+		.getElementById("algorithmSpeed")
+		.addEventListener("input", updateAlgorithmSpeed);
+
 	// Prevent context menu on network
 	document
 		.getElementById("network")
@@ -364,6 +369,49 @@ function removeAllEdges() {
 	updateInfo(`Removed all ${edgeCount} edges`);
 }
 
+// Update algorithm speed based on slider value
+function updateAlgorithmSpeed() {
+	const speedSlider = document.getElementById("algorithmSpeed");
+	const speedValue = document.getElementById("speedValue");
+	const speed = parseInt(speedSlider.value);
+
+	const speedNames = {
+		1: "Very Slow",
+		2: "Slow",
+		3: "Normal",
+		4: "Fast",
+		5: "Very Fast",
+	};
+
+	speedValue.textContent = speedNames[speed];
+}
+
+// Get algorithm delay based on speed setting
+function getAlgorithmDelay() {
+	const speed = parseInt(document.getElementById("algorithmSpeed").value);
+	const delays = {
+		1: 1500, // Very Slow
+		2: 1000, // Slow
+		3: 500, // Normal
+		4: 300, // Fast
+		5: 100, // Very Fast
+	};
+	return delays[speed] || 1000;
+}
+
+// Get algorithm step delay (shorter delay between steps)
+function getAlgorithmStepDelay() {
+	const speed = parseInt(document.getElementById("algorithmSpeed").value);
+	const delays = {
+		1: 1000, // Very Slow - 1 second
+		2: 750, // Slow - 0.75 seconds
+		3: 500, // Normal - 0.5 seconds
+		4: 300, // Fast - 0.3 seconds
+		5: 150, // Very Fast - 0.15 seconds
+	};
+	return delays[speed] || 500;
+}
+
 // BFS Algorithm
 async function runBFS() {
 	const startNodeId = document.getElementById("startNode").value;
@@ -394,7 +442,7 @@ async function runBFS() {
 
 		// Highlight current node
 		highlightNode(currentNodeId, "#f39c12");
-		await sleep(1000);
+		await sleep(getAlgorithmDelay());
 
 		// Mark as visited
 		highlightNode(currentNodeId, "#2ecc71");
@@ -430,7 +478,7 @@ async function runBFS() {
 		updateAlgorithmInfo(
 			`BFS: Visited ${visited.size} nodes, Queue: ${queue.length}`
 		);
-		await sleep(500);
+		await sleep(getAlgorithmStepDelay());
 	}
 
 	algorithmRunning = false;
@@ -473,7 +521,7 @@ async function runDFS() {
 
 		// Highlight current node
 		highlightNode(currentNodeId, "#f39c12");
-		await sleep(1000);
+		await sleep(getAlgorithmDelay());
 
 		// Mark as visited
 		highlightNode(currentNodeId, "#2ecc71");
@@ -505,7 +553,7 @@ async function runDFS() {
 		updateAlgorithmInfo(
 			`DFS: Visited ${visited.size} nodes, Stack: ${stack.length}`
 		);
-		await sleep(500);
+		await sleep(getAlgorithmStepDelay());
 	}
 
 	algorithmRunning = false;
@@ -1102,6 +1150,9 @@ function escapeXml(text) {
 
 // Initialize collapsible sections (collapsed by default)
 function initializeCollapsibleSections() {
+	// Initialize speed slider
+	updateAlgorithmSpeed();
+
 	// Collapse Algorithms section
 	const algorithmsSection = document.getElementById("algorithmsSection");
 	const algorithmsChevron = document.getElementById("algorithmsChevron");
